@@ -32,7 +32,6 @@ public class Type {
     // Can convert from int to float only
     public static boolean isConvertible(Type from, Type to) {
         return (from == INT && to == FLOAT) ||
-                (from == STRING && to == FILE) ||
                 from == to;
     }
 

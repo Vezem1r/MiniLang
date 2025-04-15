@@ -8,7 +8,8 @@ statement
            : primitiveType ID (COMMA ID)* SEMI                 # variableDeclaration
            | READ ID (COMMA ID)* SEMI                          # read
            | WRITE expression (COMMA expression)* SEMI         # write
-           | FWRITE expression COMMA expression (COMMA expression)* SEMI # fwrite
+           | FWRITE expression (COMMA expression)* SEMI        # fwrite
+           | FOPEN expression (COMMA expression)* SEMI         # fopen
            | expression SEMI                                   # expressionEval
            | '{' statement+ '}'                                # block
            | IF '(' condition ')' statement (else_)?           # if
@@ -54,6 +55,7 @@ WHILE : 'while';
 TRUE : 'true';
 FALSE : 'false';
 FWRITE : 'fwrite';
+FOPEN: 'fopen';
 FILE: 'file';
 
 // Literals

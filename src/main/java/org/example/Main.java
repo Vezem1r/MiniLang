@@ -11,15 +11,16 @@ import java.nio.file.Paths;
 
 public class Main {
     public static void main(String[] args) {
-
         if (args.length < 1) {
-            System.err.println("Usage: java Main <file>");
+            System.err.println("Usage: java Main <file> [--run]");
             System.exit(1);
         }
 
+        String inputFile = args[0];
+        String outputFile = inputFile + ".code";
+        boolean runInterpreter = args.length > 1 && args[1].equals("--run");
+
         try {
-            String inputFile = args[0];
-            String outputFile = args.length > 1 ? args[1] : inputFile + ".code";
             String input = new String(Files.readAllBytes(Paths.get(inputFile)));
 
             LanguageLexer lexer = new LanguageLexer(CharStreams.fromString(input));
@@ -35,8 +36,6 @@ public class Main {
             lexer.addErrorListener(syntaxErrorListener);
 
             ParseTree tree = parser.program();
-
-            System.out.println(tree.toStringTree(parser));
 
             if (errorHandler.hasErrors()) {
                 errorHandler.printErrors();
@@ -59,11 +58,16 @@ public class Main {
                 writer.write(generatedCode);
             }
 
-            System.out.println("Parsing, type checking, and code generation completed successfully.");
             System.out.println("Generated code saved to: " + outputFile);
 
+            if (runInterpreter) {
+                System.out.println("Running interpreter...");
+                Interpreter interpreter = new Interpreter();
+                interpreter.execute(outputFile);
+            }
+
         } catch (IOException e) {
-            System.err.println("Error reading input file: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             System.exit(1);
         }
     }

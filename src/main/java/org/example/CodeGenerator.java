@@ -98,12 +98,28 @@ public class CodeGenerator extends LanguageBaseVisitor<Void> {
 
     @Override
     public Void visitFwrite(LanguageParser.FwriteContext ctx) {
-        visit(ctx.expression(0));
-        for (int i = 1; i < ctx.expression().size(); i++) {
+        for (int i = 0; i < ctx.expression().size(); i++) {
             visit(ctx.expression(i));
         }
 
-        code.append("fwrite ").append(ctx.expression().size() - 1).append("\n");
+        code.append("fwrite ").append(ctx.expression().size()).append("\n");
+        return null;
+    }
+
+    @Override
+    public Void visitFopen(LanguageParser.FopenContext ctx) {
+        if (ctx.expression().size() >= 2) {
+            visit(ctx.expression(1));
+            code.append("fopen\n");
+
+            if (ctx.expression(0) instanceof LanguageParser.IdValueContext) {
+                String varName = ((LanguageParser.IdValueContext) ctx.expression(0)).ID().getText();
+                code.append("save ").append(varName).append("\n");
+            }
+        } else if (ctx.expression().size() == 1) {
+            visit(ctx.expression(0));
+            code.append("fopen\n");
+        }
         return null;
     }
 
