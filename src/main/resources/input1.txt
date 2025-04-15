@@ -5,12 +5,8 @@ write "";;
 
 write "<File operations>";
 file a1;
-fopen a1, "____";
-fwrite a1,1,"a1",1+1;
-
-file f;
-fopen f, "test.txt";
-fwrite f, "This is a test", 123, 3.14;
+fopen a1, "test.txt";
+fwrite a1,1,"a1",1+1, 10+55+123/2;
 
 write "File operations completed";
 

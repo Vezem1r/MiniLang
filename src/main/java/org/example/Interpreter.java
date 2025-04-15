@@ -315,14 +315,19 @@ public class Interpreter {
                 stack.push(b);
             }
             case "fopen" -> {
-                Value filename = stack.pop();
+                Value filenameValue = stack.pop();
+                String filename = filenameValue.value.toString();
                 try {
+                    File file = getFile(filename);
+
                     String fileId = UUID.randomUUID().toString();
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(filename.value.toString()));
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
                     fileHandles.put(fileId, writer);
+
                     stack.push(new Value(Type.FILE, fileId));
+
                 } catch (IOException e) {
-                    throw new IOException("Failed to open file: " + filename.value + " - " + e.getMessage());
+                    throw new IOException("Failed to open file: " + filename + " - " + e.getMessage());
                 }
             }
             case "fwrite" -> {
@@ -331,9 +336,9 @@ public class Interpreter {
                     throw new IllegalArgumentException("fwrite needs at least 1 argument (file handle)");
                 }
 
-                Object[] values = new Object[count];
+                Value[] values = new Value[count];
                 for (int i = count - 1; i >= 0; i--) {
-                    values[i] = stack.pop().value;
+                    values[i] = stack.pop();
                 }
 
                 String fileId = values[0].toString();
@@ -343,7 +348,8 @@ public class Interpreter {
                 }
 
                 for (int i = 1; i < count; i++) {
-                    writer.write(values[i].toString());
+                    writer.write(values[i].value.toString());
+                    if (i < count - 1) writer.write(" ");
                 }
                 writer.flush();
             }
@@ -351,6 +357,25 @@ public class Interpreter {
         }
 
         return currentLine;
+    }
+
+    private static File getFile(String filename) {
+        File file;
+        if (new File(filename).isAbsolute()) {
+            file = new File(filename);
+        } else {
+            String resourcePath = "src/main/resources/" + filename;
+            file = new File(resourcePath);
+
+            if (!file.exists()) {
+                file = new File(filename);
+            }
+        }
+
+        if (file.getParentFile() != null) {
+            file.getParentFile().mkdirs();
+        }
+        return file;
     }
 
     private record Value(Type type, Object value) {
